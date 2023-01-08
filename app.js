@@ -4,7 +4,7 @@ const cors = require("cors")
 const jwt = require("jsonwebtoken")
 
 const users = require("./db/users")
-let articles = require("./db/articles")
+const articles = require("./db/articles")
 
 const jwtConfig = {
   secretKey : "a",
@@ -14,6 +14,8 @@ const jwtConfig = {
     issuer: "wnalstjr"
   }
 }
+
+let posts = [...articles].splice(0,10)
 
 const app = express()
 
@@ -29,9 +31,9 @@ app.get("/users", (req,res) => {
 })
 
 app.get("/articles", (req,res) => {
-  res.json(articles)
+  res.json(posts)
 })
-
+// 완성
 app.post("/articles", (req,res) => {
   const {title, contents} = req.body
   const created_at = new Date()
@@ -48,7 +50,7 @@ app.post("/articles", (req,res) => {
   });
   console.log(maxObjArr.id)
 
-  articles.push({id : maxObjArr.id + 1,title, contents, user_id: user.id,created_at,count:0 })
+  posts.push({id : maxObjArr.id + 1,title, contents, user_id: user.id,created_at,count:0 })
 
   res.json({message: "게시글을 작성했습니다."})
 })
@@ -57,22 +59,25 @@ app.get("/articles/:id", (req,res) => {
   const {id} = req.params
 
   const post = articles.find(art => art.id == id)
-  console.log(post)
   if (!post) {
-    return res.json({message: "게시물 조회에 실패하였습니다."})
+    return res.end()
   }
 
   res.json(post)
 })
-
+// 완성
 app.delete("/articles/:id", (req,res) => {
   const {id} = req.params
+
+  if (!req.cookies.jwt) {
+    return res.status(401).json({message : "로그인 이후 가능"})
+  }
   
   const user = users.find(user => user.id === jwt.verify(req.cookies.jwt, jwtConfig.secretKey).id)
 
   const post = articles.find(art => art.id == id)
 
-  const isIdCorrect = user.id === post.id
+  const isIdCorrect = user.id === post.user_id
 
 
   if(!post) {
@@ -85,20 +90,26 @@ app.delete("/articles/:id", (req,res) => {
 
   const del_articles = articles.filter(art => art.id !== post.id)
 
-  articles = del_articles
+  posts = del_articles
 
   res.json({message: "삭제 완료"})
 })
-
+// 완성
 app.put("/articles/:id", (req,res) => {
   const {id} = req.params
   const post = articles.find(art => art.id == id)
   console.log(post)
   const contents = req.body.contents || post.contents
   const title = req.body.title || post.title
+
+  if (!req.cookies.jwt) {
+    return res.status(401).json({message : "로그인 이후 가능"})
+  }
+
   const user = users.find(user => user.id === jwt.verify(req.cookies.jwt, jwtConfig.secretKey).id)
 
-  const isIdCorrect = user.id === post.id
+
+  const isIdCorrect = user.id === post.user_id
 
   if(!post) {
     return res.json({message: "게시물 조회에 실패했습니다."})
@@ -114,7 +125,7 @@ app.put("/articles/:id", (req,res) => {
   return res.json({message: "수정완료;;"})
 
 })
-
+// 완성
 app.get("/userInfos", (req,res) => {
   const userId = jwt.verify(req.cookies.jwt, jwtConfig.secretKey)
 
@@ -128,7 +139,7 @@ app.get("/userInfos", (req,res) => {
 
   res.json({info, myposts})
 })
-
+// 완성
 app.post("/signup", (req,res) => {
   const {email, password, name} = req.body
   
@@ -146,20 +157,20 @@ app.post("/signup", (req,res) => {
     return res.json({message: "회원가입 축하다"})
   }
 })
-
+// 완성
 app.post("/login", (req,res) => {
   const {email, password}= req.body
 
   const user = users.find(user => user.email === email && user.password === password)
 
   if(!user) {
-    return res.status(401).send("누구세요?")
+    return res.status(401).end()
   }
 
   res.cookie("jwt", jwt.sign(user, jwtConfig.secretKey, jwtConfig.options))
   res.status(200).json({msg:`${user.name}님 환영합니다`})
 })
-
+// 완성
 app.get("/logout", (req,res) => {
   res.clearCookie("jwt")
   res.end()
