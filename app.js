@@ -48,7 +48,6 @@ app.post("/articles", (req,res) => {
   const maxObjArr = articles.reduce( (prev, value) => {
     return prev.guildMemberCount >= value.guildMemberCount ? prev : value
   });
-  console.log(maxObjArr.id)
 
   posts.push({id : maxObjArr.id + 1,title, contents, user_id: user.id,created_at,count:0 })
 
@@ -98,7 +97,6 @@ app.delete("/articles/:id", (req,res) => {
 app.put("/articles/:id", (req,res) => {
   const {id} = req.params
   const post = articles.find(art => art.id == id)
-  console.log(post)
   const contents = req.body.contents || post.contents
   const title = req.body.title || post.title
 
@@ -130,7 +128,7 @@ app.get("/userInfos", (req,res) => {
   const userId = jwt.verify(req.cookies.jwt, jwtConfig.secretKey)
 
   const info = users.find(user => user.email === userId.email)
-  const myposts = articles.filter(art => art.user_id === info.id)
+  const myposts = posts.filter(art => art.user_id === info.id)
 
   if(!info) {
     return res.status(401).json({msg: "진짜 누구세요??"})
