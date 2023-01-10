@@ -17,30 +17,26 @@ const jwtConfig = {
 
 let posts = [...articles].splice(0,10)
 
-const app = express()
-
 let corsOptions = {
   origin: 'http://localhost:5100',
   credentials: true
 }
 
-app.use(express.json(), cookieParser(),cors(corsOptions))
+const app = express()
 
-app.get("/users", (req,res) => {
-  res.json(users)
-})
+app.use(express.json(), cookieParser(),cors(corsOptions))
 
 app.get("/articles", (req,res) => {
   res.json(posts)
 })
-// 완성
-app.post("/articles", (req,res) => {
-  const {title, contents} = req.body
-  const created_at = new Date()
 
+app.post("/articles", (req,res) => {
   if(!req.cookies.jwt) {
     return res.json({message: "로그인 이후 글 쓰기가 가능합니다!"})
   }
+  const {title, contents} = req.body
+  const created_at = new Date()
+
 
   const user = users.find(user => user.id === jwt.verify(req.cookies.jwt, jwtConfig.secretKey).id)
 
@@ -64,7 +60,38 @@ app.get("/articles/:id", (req,res) => {
 
   res.json(post)
 })
-// 완성
+
+app.put("/articles/:id", (req,res) => {
+  if (!req.cookies.jwt) {
+    return res.status(401).json({message : "로그인 이후 가능"})
+  }
+
+  const {id} = req.params
+  const post = articles.find(art => art.id == id)
+
+  const contents = req.body.contents || post.contents
+  const title = req.body.title || post.title
+
+  const user = users.find(user => user.id === jwt.verify(req.cookies.jwt, jwtConfig.secretKey).id)
+
+
+  const isIdCorrect = user.id === post.user_id
+
+  if(!post) {
+    return res.json({message: "게시물 조회에 실패했습니다."})
+  }
+
+  if (!isIdCorrect) {
+    return res.status(401).json({message: "권한 업똥!"})
+  }
+
+  post.contents = contents
+  post.title = title
+
+  return res.json({message: "수정완료;;"})
+
+})
+
 app.delete("/articles/:id", (req,res) => {
   const {id} = req.params
 
@@ -93,37 +120,7 @@ app.delete("/articles/:id", (req,res) => {
 
   res.json({message: "삭제 완료"})
 })
-// 완성
-app.put("/articles/:id", (req,res) => {
-  const {id} = req.params
-  const post = articles.find(art => art.id == id)
-  const contents = req.body.contents || post.contents
-  const title = req.body.title || post.title
 
-  if (!req.cookies.jwt) {
-    return res.status(401).json({message : "로그인 이후 가능"})
-  }
-
-  const user = users.find(user => user.id === jwt.verify(req.cookies.jwt, jwtConfig.secretKey).id)
-
-
-  const isIdCorrect = user.id === post.user_id
-
-  if(!post) {
-    return res.json({message: "게시물 조회에 실패했습니다."})
-  }
-
-  if (!isIdCorrect) {
-    return res.status(401).json({message: "권한 업똥!"})
-  }
-
-  post.contents = contents
-  post.title = title
-
-  return res.json({message: "수정완료;;"})
-
-})
-// 완성
 app.get("/userInfos", (req,res) => {
   const userId = jwt.verify(req.cookies.jwt, jwtConfig.secretKey)
 
@@ -133,11 +130,10 @@ app.get("/userInfos", (req,res) => {
   if(!info) {
     return res.status(401).json({msg: "진짜 누구세요??"})
   }
-  // const mylist = Object.assign(info, myposts)
 
   res.json({info, myposts})
 })
-// 완성
+
 app.post("/signup", (req,res) => {
   const {email, password, name} = req.body
   
@@ -155,7 +151,7 @@ app.post("/signup", (req,res) => {
     return res.json({message: "회원가입 축하다"})
   }
 })
-// 완성
+
 app.post("/login", (req,res) => {
   const {email, password}= req.body
 
@@ -168,7 +164,7 @@ app.post("/login", (req,res) => {
   res.cookie("jwt", jwt.sign(user, jwtConfig.secretKey, jwtConfig.options))
   res.status(200).json({msg:`${user.name}님 환영합니다`})
 })
-// 완성
+
 app.get("/logout", (req,res) => {
   res.clearCookie("jwt")
   res.end()
