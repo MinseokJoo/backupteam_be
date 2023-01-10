@@ -15,8 +15,6 @@ const jwtConfig = {
   }
 }
 
-let posts = [...articles].splice(0,10)
-
 let corsOptions = {
   origin: 'http://localhost:5100',
   credentials: true
@@ -27,7 +25,7 @@ const app = express()
 app.use(express.json(), cookieParser(),cors(corsOptions))
 
 app.get("/articles", (req,res) => {
-  res.json(posts)
+  res.json(articles)
 })
 
 app.post("/articles", (req,res) => {
@@ -45,7 +43,7 @@ app.post("/articles", (req,res) => {
     return prev.guildMemberCount >= value.guildMemberCount ? prev : value
   });
 
-  posts.push({id : maxObjArr.id + 1,title, contents, user_id: user.id,created_at,count:0 })
+  articles.push({id : maxObjArr.id + 1,title, contents, user_id: user.id,created_at,count:0 })
 
   res.json({message: "게시글을 작성했습니다."})
 })
@@ -69,17 +67,17 @@ app.put("/articles/:id", (req,res) => {
   const {id} = req.params
   const post = articles.find(art => art.id == id)
 
+  if(!post) {
+    return res.json({message: "게시물 조회에 실패했습니다."})
+  }
+
   const contents = req.body.contents || post.contents
   const title = req.body.title || post.title
 
   const user = users.find(user => user.id === jwt.verify(req.cookies.jwt, jwtConfig.secretKey).id)
 
-
   const isIdCorrect = user.id === post.user_id
 
-  if(!post) {
-    return res.json({message: "게시물 조회에 실패했습니다."})
-  }
 
   if (!isIdCorrect) {
     return res.status(401).json({message: "권한 업똥!"})
@@ -88,8 +86,7 @@ app.put("/articles/:id", (req,res) => {
   post.contents = contents
   post.title = title
 
-  return res.json({message: "수정완료;;"})
-
+  res.json({message: "수정완료;;"})
 })
 
 app.delete("/articles/:id", (req,res) => {
@@ -114,18 +111,17 @@ app.delete("/articles/:id", (req,res) => {
     return res.status(401).json({message: "권한 업똥!"})
   }
 
-  const del_articles = articles.filter(art => art.id !== post.id)
-
-  posts = del_articles
-
-  res.json({message: "삭제 완료"})
+  const index = articles.findIndex(po => po.id === post.id)
+  console.log(index)
+  articles.splice(index, 1)
+  res.json(articles)
 })
 
 app.get("/userInfos", (req,res) => {
   const userId = jwt.verify(req.cookies.jwt, jwtConfig.secretKey)
 
   const info = users.find(user => user.email === userId.email)
-  const myposts = posts.filter(art => art.user_id === info.id)
+  const myposts = articles.filter(art => art.user_id === info.id)
 
   if(!info) {
     return res.status(401).json({msg: "진짜 누구세요??"})
