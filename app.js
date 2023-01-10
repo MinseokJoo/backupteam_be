@@ -35,6 +35,10 @@ app.post("/articles", (req,res) => {
   const {title, contents} = req.body
   const created_at = new Date()
 
+  if (!title || !contents) {
+    return res.status(401).end()
+  }
+
 
   const user = users.find(user => user.id === jwt.verify(req.cookies.jwt, jwtConfig.secretKey).id)
 
@@ -53,7 +57,7 @@ app.get("/articles/:id", (req,res) => {
 
   const post = articles.find(art => art.id == id)
   if (!post) {
-    return res.end()
+    return res.status(404).end()
   }
 
   res.json(post)
@@ -112,9 +116,8 @@ app.delete("/articles/:id", (req,res) => {
   }
 
   const index = articles.findIndex(po => po.id === post.id)
-  console.log(index)
   articles.splice(index, 1)
-  res.json(articles)
+  res.json({message: "삭 완"})
 })
 
 app.get("/userInfos", (req,res) => {
@@ -132,6 +135,10 @@ app.get("/userInfos", (req,res) => {
 
 app.post("/signup", (req,res) => {
   const {email, password, name} = req.body
+
+  if (!email || !password || name) {
+    return res.end()
+  }
   
   const user = users.find(user => user.email === email)
 
