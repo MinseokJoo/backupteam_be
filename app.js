@@ -33,12 +33,24 @@ app.use(express.json(), cookieParser(),cors(corsOptions))
 
 app.get("/articles", (req,res) => {
   const {page} = req.query
-  const b = 10
-  const a = ((page || 1)  -1 ) * b
-
-  connection.query(`select * from Minseok06_articles order by id desc limit ${b} offset ${a}`, (error, rows, fields) => {
-    res.json(rows)
+  const perpage = 10
+  const p = ((page || 1)  -1 ) * perpage
+  connection.query(`select count(*) from articles`, (error, rows, fields) => {
+    lastPage =  (rows[0]["count(*)"] % 10) === 0 ? rows[0]["count(*)"] / 10 : (rows[0]["count(*)"] / 10) + 1
+    connection.query(`select * from articles order by id desc limit ${perpage} offset ${p}`, (error, rows, fields) => {
+      res.json(
+        {
+          pageInfo : {
+            perpage,
+            lastPage,
+            currentPage: page || 1
+          },
+          rows
+        }
+      )
+    })
   })
+
 })
 
 app.post("/articles", (req,res) => {
@@ -96,11 +108,11 @@ app.put("/articles/:id", (req,res) => {
 })
 
 app.delete("/articles/:id", (req,res) => {
-  const {id} = req.params
-
   if (!req.cookies.jwt) {
     return res.status(401).json({message : "로그인 이후 가능"})
   }
+  const {id} = req.params
+
 
   connection.query(`delete from Minseok06_articles where id = ${id}`, () => {
     res.json({message: "삭 완"})
@@ -115,7 +127,7 @@ app.delete("/articles/:id", (req,res) => {
 })
 
 app.get("/userInfos", (req,res) => {
-  const id = jwt.verify(req.cookies.jwt, jwtConfig.secretKey).id
+  const {id} = jwt.verify(req.cookies.jwt, jwtConfig.secretKey)
 
   // const info = users.find(user => user.email === userId.email)
   connection.query(`select name, email from Minseok_users where id = ${id};`, (error,rows,fields) => {
