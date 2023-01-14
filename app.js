@@ -36,7 +36,7 @@ app.get("/articles", (req,res) => {
   const perpage = 10
   const p = ((page || 1)  -1 ) * perpage
   connection.query(`select count(*) from articles`, (error, rows, fields) => {
-    lastPage =  (rows[0]["count(*)"] % 10) === 0 ? rows[0]["count(*)"] / 10 : (rows[0]["count(*)"] / 10) + 1
+    lastPage =  (rows[0]["count(*)"] % perpage) === 0 ? rows[0]["count(*)"] / perpage : parseInt((rows[0]["count(*)"] / perpage)) + 1
     connection.query(`select * from articles order by id desc limit ${perpage} offset ${p}`, (error, rows, fields) => {
       res.json(
         {
@@ -48,6 +48,7 @@ app.get("/articles", (req,res) => {
           rows
         }
       )
+      console.log(lastPage)
     })
   })
 
