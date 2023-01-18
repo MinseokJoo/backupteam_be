@@ -1,5 +1,7 @@
 const express = require("express")
 const router = express.Router()
+const jwt = require("jsonwebtoken")
+const {jwtConfig} = require("../config/config")
 const {getAllArticles, getAticle} = require("../repository/index")
 
 router.get("/", async(req,res) => {

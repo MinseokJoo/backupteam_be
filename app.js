@@ -1,8 +1,7 @@
 const express = require("express")
 const cookieParser = require("cookie-parser")
 const cors = require("cors")
-const jwt = require("jsonwebtoken")
-const {jwtConfig,corsOptions} = require("./src/config/config")
+const {corsOptions} = require("./src/config/config")
 const articleRouter = require('./src/routes/article')
 const userRouter = require('./src/routes/user')
 
