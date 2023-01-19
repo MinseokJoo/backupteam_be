@@ -1,18 +1,28 @@
-const {findOne, findByPk} = require("../repository/db")
+const {User} = require("../models/user")
 
 const getUserByEmailAndPassword = async (email, password) => {
-  password = !password ? null : password
-  if (!password) {
-    return await findOne("users", [{email}])
-  }
-  return await findOne('users', [{email, password}])
+  const user = await User.findOne({where : {email, password}})
+  return user
 }
 
 const getUserInfo = async (id) => {
-  return await findByPk("users", {id})
+  const infos = await User.findByPk(id, {attributes: ["name", "email"]})
+  return infos
+}
+
+const checkEmail = async(email) => {
+  const isAlreadyEmail = await User.findOne({where : {email}})
+  return isAlreadyEmail
+}
+
+const createEmail = async (name,email,password) => {
+  const signupIsOkay = await User.create({name,email,password})
+  return signupIsOkay
 }
 
 module.exports = {
   getUserByEmailAndPassword,
-  getUserInfo
+  getUserInfo,
+  checkEmail,
+  createEmail
 }

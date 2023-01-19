@@ -8,10 +8,10 @@ router.get("/", getArticles)
 
 router.get("/:id", getArticle)
 
-router.post("/articles", postArticle)
+router.post("/", postArticle)
 
 router.put("/:id", putArticle)
 
-router.delete("/articles/:id", deleteArticle)
+router.delete("/:id", deleteArticle)
 
 module.exports = router

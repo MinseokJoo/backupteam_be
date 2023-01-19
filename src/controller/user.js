@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken")
 const {jwtConfig} = require("../config/config")
-const {getUserByEmailAndPassword,getUserInfo} = require("../repository/index")
+const {getUserByEmailAndPassword,getUserInfo,checkEmail, createEmail} = require("../repository/index")
 
 const getUserInfos = async (req,res) => {
   if(!req.cookies.jwt) {
@@ -37,14 +37,12 @@ const signup = async (req,res) => {
     return res.status(401).json({message: "끝까지 입력하세요"})
   }
   
-  const user = await getUserByEmailAndPassword(email)
-    if(user[0]) {
+  const user = await checkEmail(email)
+    if(user) {
       return res.status(401).json({message: "실패"})
     }
-    res.json({message: "조금만 기다려바 곧 해줄게..."})
-    // connection.query(`insert into Minseok_users (name, email, password) values ("${name}", "${email}", "${password}");`)
-    // res.json({message: "축하"})
-
+    await createEmail(name, email, password)
+    res.json({message: "축하"})
 }
 
 module.exports = {
