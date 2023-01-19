@@ -3,8 +3,6 @@ require("./conn").then((a) => {
   conn = a
 })
 
-
-
 const findOne = async (table, [conditions]) => {
   let conditionString
   if([conditions].length <= 1){
