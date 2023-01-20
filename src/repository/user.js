@@ -1,4 +1,5 @@
 const {User} = require("../models/user")
+const {Article} = require("../models/article")
 
 const getUserByEmailAndPassword = async (email, password) => {
   const user = await User.findOne({where : {email, password}})
@@ -8,6 +9,11 @@ const getUserByEmailAndPassword = async (email, password) => {
 const getUserInfo = async (id) => {
   const infos = await User.findByPk(id, {attributes: ["name", "email"]})
   return infos
+}
+
+const myposts = async (id) => {
+  const myArticles = await Article.findAll({ where : {user_id :id} , limit:5, order: [["id", "DESC"]]})
+  return myArticles
 }
 
 const checkEmail = async(email) => {
@@ -24,5 +30,6 @@ module.exports = {
   getUserByEmailAndPassword,
   getUserInfo,
   checkEmail,
-  createEmail
+  createEmail,
+  myposts
 }

@@ -30,10 +30,6 @@ const postArticle = async (req,res) => {
   const {id} = jwt.verify(req.cookies.jwt, jwtConfig.secretKey)
   const {title, contents} = req.body
 
-  if (!title || !contents) {
-    return res.status(401).end()
-  }
-
   await createArticle(id,title,contents)
   res.status(201).json({message: "작성 완료~!"})
 }
