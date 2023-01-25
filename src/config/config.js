@@ -2,7 +2,6 @@ const jwtConfig = {
   secretKey : "a",
   options: {
     algorithm: "HS256",
-    expiresIn: "30m",
     issuer: "wnalstjr"
   }
 }

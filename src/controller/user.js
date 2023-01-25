@@ -34,15 +34,16 @@ const logout = (req,res) => {
 const signup = async (req,res) => {
   const {name, email, password, confirm} = req.body
   
-  const user = await checkEmail(email)
   if(password !== confirm) {
     return res.status(500).json({notSame: "비밀번호가 다름"})
   }
-    if(user) {
-      return res.status(401).json({alreadyEmail: "이미 가입된 이메일 입니다."})
-    }
-    await createEmail(name, email, password)
-    res.json({message: "축하"})
+  
+  const user = await checkEmail(email)
+  if(user) {
+    return res.status(401).json({alreadyEmail: "이미 가입된 이메일 입니다."})
+  }
+  await createEmail(name, email, password)
+  res.json({message: "축하"})
 }
 
 module.exports = {

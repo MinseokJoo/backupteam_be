@@ -6,7 +6,7 @@ const getAllArticles = async (perpage, p) => {
   return [lastPage,rows]
 }
 
-const getAticle = async (id) => {
+const getArticle = async (id) => {
   try {
     const article = await Article.findByPk(id)
     if (!article) {
@@ -49,4 +49,8 @@ const deleteMyArticle = async (id) => {
   }
 }
 
-module.exports = {getAllArticles, getAticle, createArticle, upadateMyArticle, deleteMyArticle}
+const countUpdate = async (id, count)=> {
+  return await Article.update({count:count+1},{where:{id}})
+}
+
+module.exports = {getAllArticles, getArticle, createArticle, upadateMyArticle, deleteMyArticle, countUpdate}

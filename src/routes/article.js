@@ -1,12 +1,12 @@
 const express = require("express")
 const router = express.Router()
 
-const {getArticles,getArticle,postArticle,putArticle,deleteArticle} = require("../controller/article")
+const {getArticles,OneArticle,postArticle,putArticle,deleteArticle} = require("../controller/article")
 
 
 router.get("/", getArticles)
 
-router.get("/:id", getArticle)
+router.get("/:id", OneArticle)
 
 router.post("/", postArticle)
 
