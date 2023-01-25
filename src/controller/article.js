@@ -50,7 +50,7 @@ const putArticle = async (req,res) => {
     return res.status(401).json({message: "없음"})
   }
 
-  if (article.user_id !== jwt.verify(req.cookies.jwt, jwtConfig.secretKey)) {
+  if (article.user_id !== jwt.verify(req.cookies.jwt, jwtConfig.secretKey).id) {
     return res.json({hhh: "노권한"})
   }
 

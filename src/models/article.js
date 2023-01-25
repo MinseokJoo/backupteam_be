@@ -1,5 +1,6 @@
 const sequelize = require("../db/conn")
 const {DataTypes} = require("sequelize")
+const {User} = require("./user")
 
 const Article = sequelize.define("articles", {
   id: {
@@ -18,5 +19,8 @@ const Article = sequelize.define("articles", {
   createdAt: "created_at"
 }
 )
+
+Article.User = Article.belongsTo(User, {foreignKey: "user_id"})
+User.Article = User.hasMany(Article, {foreignKey: "user_id"})
 
 module.exports = {Article}

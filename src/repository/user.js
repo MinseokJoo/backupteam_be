@@ -7,13 +7,8 @@ const getUserByEmailAndPassword = async (email, password) => {
 }
 
 const getUserInfo = async (id) => {
-  const infos = await User.findByPk(id, {attributes: ["name", "email"]})
+  const infos = await User.findByPk(id,{include: [{model : Article, limit: 5, order :[["id", "desc"]] ,attributes: ["title", "contents", "created_at"]}], attributes: ["name", "email"]})
   return infos
-}
-
-const myposts = async (id) => {
-  const myArticles = await Article.findAll({ where : {user_id :id} , limit:5, order: [["id", "DESC"]]})
-  return myArticles
 }
 
 const checkEmail = async(email) => {
@@ -30,6 +25,5 @@ module.exports = {
   getUserByEmailAndPassword,
   getUserInfo,
   checkEmail,
-  createEmail,
-  myposts
+  createEmail
 }

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken")
 const {jwtConfig} = require("../config/config")
-const {getUserByEmailAndPassword,getUserInfo,checkEmail, createEmail,myposts} = require("../repository/index")
+const {getUserByEmailAndPassword,getUserInfo,checkEmail, createEmail} = require("../repository/index")
 
 const getUserInfos = async (req,res) => {
   if(!req.cookies.jwt) {
@@ -9,8 +9,7 @@ const getUserInfos = async (req,res) => {
   const {id} = jwt.verify(req.cookies.jwt, jwtConfig.secretKey)
 
   const userInfo = await getUserInfo(id)
-  const myArticles = await myposts(id)
-  res.json({userInfo, myArticles})
+  res.json({userInfo})
 }
 
 const login = async (req,res) => {

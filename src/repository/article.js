@@ -1,7 +1,8 @@
 const {Article} = require("../models/article")
+const {User} = require("../models/user")
 
 const getAllArticles = async (perpage, p) => {
-  const {count, rows} = await Article.findAndCountAll({limit: perpage, offset: p,order: [["created_at", "DESC"]]})
+  const {count, rows} = await Article.findAndCountAll({include: [User], limit: perpage, offset: p,order: [["created_at", "DESC"]]})
   const lastPage = (count % perpage) === 0 ? count / perpage : parseInt(count / perpage) + 1
   return [lastPage,rows]
 }
